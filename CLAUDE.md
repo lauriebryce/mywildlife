@@ -1,7 +1,7 @@
 # My Wild Life — web publishing
 
 This repo holds the published version of Laurie's outdoor log. It is generated, not
-hand-edited: every file under `photos/` and `index.html` itself are build output.
+hand-edited: everything under `docs/` is build output.
 
 ## Where things live
 
@@ -9,7 +9,8 @@ hand-edited: every file under `photos/` and `index.html` itself are build output
 | --- | --- |
 | Source of truth (entries, originals, dashboard) | `G:\My Drive\claude_cowork\OUTPUTS\Outdoor Log\` |
 | Build script | `<that folder>\build_site.py` |
-| This repo (build output + git) | this folder — keep it on the local disk, **not** on `G:` |
+| This repo (git) | this folder — keep it on the local disk, **not** on `G:` |
+| Build output (what Pages serves) | `docs/` inside this folder |
 | Live site | https://wildlife.lauriebryce.com |
 
 The source folder is Google Drive for desktop. A `.git` directory inside a Drive-synced
@@ -22,16 +23,19 @@ repo should be edited to change content — fix the source and rebuild.
 
 ## Publish
 
-```bash
-python "G:\My Drive\claude_cowork\OUTPUTS\Outdoor Log\build_site.py" \
-  --root "G:\My Drive\claude_cowork\OUTPUTS\Outdoor Log" \
-  --out .
-git add -A && git commit -m "Rebuild site" && git push
+```powershell
+.\publish.ps1
 ```
 
-GitHub Pages serves `main` and redeploys on push, usually within a minute.
-`build_site.py` needs Pillow (`pip install Pillow`); it deletes and recreates `--out`,
-so nothing but build output belongs in this folder.
+That rebuilds from the source folder, rewrites `docs/CNAME` and `docs/.nojekyll`,
+aborts if the noindex tags are missing, then commits and pushes. GitHub Pages serves
+`main` / `docs` and redeploys within a minute or so.
+`build_site.py` needs Pillow (`pip install Pillow`).
+
+**`--out` must be `docs`, never `.`** — the script calls `shutil.rmtree(out)`
+before rebuilding, so aiming it at the repo root deletes `.git` and this file on every
+publish. Everything inside `docs/` is disposable and regenerated; everything outside it
+(`.git`, `CLAUDE.md`, `publish.ps1`, `.gitignore`, `.claude/`) is not.
 
 ## Constraints — keep these
 
@@ -40,7 +44,7 @@ EXIF including GPS. Several entries were shot at Laurie's house in Stowe and on 
 land. Never copy original files into this repo, and never add an EXIF-preserving path to
 the build.
 
-**Keep the page noindex.** `index.html` carries
+**Keep the page noindex.** `docs/index.html` carries
 `<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">` and
 `<meta name="referrer" content="no-referrer">`. The site is deliberately unlisted — not
 linked from anywhere, not meant to be found — but it is publicly served, because GitHub
@@ -63,7 +67,9 @@ when Leaflet is missing, so entries always render. Keep that guard.
 
 ## DNS
 
-`wildlife.lauriebryce.com` is a CNAME to the GitHub Pages host. The main site
+`wildlife.lauriebryce.com` is a CNAME to `lauriebryce.github.io`, added at DreamHost.
+Pages keeps the domain in `docs/CNAME`. The build script wipes and recreates `docs/`,
+so that file must be rewritten after every build — the publish command above does it. The main site
 (lauriebryce.com) is static hosting on DreamHost at 64.90.54.5 and is unaffected. A
 redirect from `lauriebryce.com/mywildlife` can be added in DreamHost's `.htaccess` if
 the original URL is wanted as a front door.
