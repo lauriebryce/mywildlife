@@ -1,0 +1,69 @@
+# My Wild Life — web publishing
+
+This repo holds the published version of Laurie's outdoor log. It is generated, not
+hand-edited: every file under `photos/` and `index.html` itself are build output.
+
+## Where things live
+
+| What | Where |
+| --- | --- |
+| Source of truth (entries, originals, dashboard) | `G:\My Drive\claude_cowork\OUTPUTS\Outdoor Log\` |
+| Build script | `<that folder>\build_site.py` |
+| This repo (build output + git) | this folder — keep it on the local disk, **not** on `G:` |
+| Live site | https://wildlife.lauriebryce.com |
+
+The source folder is Google Drive for desktop. A `.git` directory inside a Drive-synced
+folder tends to corrupt as Drive syncs its internals mid-operation, so the repo stays
+local and only reads from `G:`.
+
+Entries are written in Claude (Cowork) sessions, which update `activities/*.md`,
+`photos/<entry-id>/`, and the `LOG` JSON block inside `dashboard.html`. Nothing in this
+repo should be edited to change content — fix the source and rebuild.
+
+## Publish
+
+```bash
+python "G:\My Drive\claude_cowork\OUTPUTS\Outdoor Log\build_site.py" \
+  --root "G:\My Drive\claude_cowork\OUTPUTS\Outdoor Log" \
+  --out .
+git add -A && git commit -m "Rebuild site" && git push
+```
+
+GitHub Pages serves `main` and redeploys on push, usually within a minute.
+`build_site.py` needs Pillow (`pip install Pillow`); it deletes and recreates `--out`,
+so nothing but build output belongs in this folder.
+
+## Constraints — keep these
+
+**Strip EXIF.** `build_site.py` re-encodes every photo through Pillow, which drops all
+EXIF including GPS. Several entries were shot at Laurie's house in Stowe and on her own
+land. Never copy original files into this repo, and never add an EXIF-preserving path to
+the build.
+
+**Keep the page noindex.** `index.html` carries
+`<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">` and
+`<meta name="referrer" content="no-referrer">`. The site is deliberately unlisted — not
+linked from anywhere, not meant to be found — but it is publicly served, because GitHub
+Pages is public even from a private repo. The meta tag is the only thing keeping it out
+of search results.
+
+**Don't list the path in a root robots.txt.** `robots.txt` here applies to the subdomain
+and is fine. But if a redirect from `lauriebryce.com/mywildlife` is ever added, do not
+add a `Disallow: /mywildlife/` line to `lauriebryce.com/robots.txt` — that file is
+public and would advertise the path to anyone who reads it.
+
+**Photos are web-res only.** 1600px long edge at quality 82, plus a 640px thumbnail
+under `photos/<entry-id>/thumb/` used for the gallery grid, with the 1600px version in
+the lightbox. Laurie will never print from this. Current build is 85 photos, 42 MB,
+down from 243 MB of originals.
+
+**The map is optional by design.** Leaflet loads from the unpkg CDN; a failure there
+used to blank the whole page. Map setup is wrapped in try/catch and `#map` hides itself
+when Leaflet is missing, so entries always render. Keep that guard.
+
+## DNS
+
+`wildlife.lauriebryce.com` is a CNAME to the GitHub Pages host. The main site
+(lauriebryce.com) is static hosting on DreamHost at 64.90.54.5 and is unaffected. A
+redirect from `lauriebryce.com/mywildlife` can be added in DreamHost's `.htaccess` if
+the original URL is wanted as a front door.
