@@ -11,7 +11,7 @@ hand-edited: everything under `docs/` is build output.
 | Build script | `<that folder>\build_site.py` |
 | This repo (git) | this folder — keep it on the local disk, **not** on `G:` |
 | Build output (what Pages serves) | `docs/` inside this folder |
-| Live site | https://wildlife.lauriebryce.com |
+| Live site | https://mywildlife.lauriebryce.com |
 
 The source folder is Google Drive for desktop. A `.git` directory inside a Drive-synced
 folder tends to corrupt as Drive syncs its internals mid-operation, so the repo stays
@@ -67,7 +67,7 @@ when Leaflet is missing, so entries always render. Keep that guard.
 
 ## DNS
 
-`wildlife.lauriebryce.com` is a CNAME to `lauriebryce.github.io`, added at DreamHost.
+`mywildlife.lauriebryce.com` is a CNAME to `lauriebryce.github.io`, added at DreamHost.
 Pages keeps the domain in `docs/CNAME`. The build script wipes and recreates `docs/`,
 so that file must be rewritten after every build — the publish command above does it. The main site
 (lauriebryce.com) is static hosting on DreamHost at 64.90.54.5 and is unaffected. A

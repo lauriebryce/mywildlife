@@ -20,7 +20,7 @@ if ($LASTEXITCODE -ne 0) { throw "build_site.py failed with exit code $LASTEXITC
 # build_site.py deletes and recreates docs/, so both of these must be rewritten
 # on every build. CNAME is what keeps the custom domain bound to the site;
 # .nojekyll stops Pages running the files through Jekyll.
-Set-Content -Encoding ascii -NoNewline (Join-Path $out "CNAME") "wildlife.lauriebryce.com"
+Set-Content -Encoding ascii -NoNewline (Join-Path $out "CNAME") "mywildlife.lauriebryce.com"
 Set-Content -Encoding ascii -NoNewline (Join-Path $out ".nojekyll") ""
 
 # Guard the two constraints that matter most, in case the source drifts.
