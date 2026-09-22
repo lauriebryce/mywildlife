@@ -20,8 +20,11 @@ if ($LASTEXITCODE -ne 0) { throw "build_site.py failed with exit code $LASTEXITC
 # build_site.py deletes and recreates docs/, so both of these must be rewritten
 # on every build. CNAME is what keeps the custom domain bound to the site;
 # .nojekyll stops Pages running the files through Jekyll.
-Set-Content -Encoding ascii -NoNewline (Join-Path $out "CNAME") "mywildlife.lauriebryce.com"
-Set-Content -Encoding ascii -NoNewline (Join-Path $out ".nojekyll") ""
+# NOTE: pass -Path/-Value by name. In Windows PowerShell 5.1,
+# `Set-Content -NoNewline <path> <value>` binds the two positionally in reverse
+# and writes a file named after the value.
+Set-Content -Path (Join-Path $out "CNAME") -Value "mywildlife.lauriebryce.com" -Encoding ascii -NoNewline
+Set-Content -Path (Join-Path $out ".nojekyll") -Value "" -Encoding ascii -NoNewline
 
 # Guard the two constraints that matter most, in case the source drifts.
 $index = Get-Content (Join-Path $out "index.html") -Raw
