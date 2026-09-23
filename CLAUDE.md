@@ -67,8 +67,12 @@ and Paddle Logger are phone screenshots, and phone screenshots are PNG — befor
 were skipped silently, which is why route images were missing from some entries.
 Transparency is flattened onto white (a bare `convert("RGB")` would make it black).
 Anything else — `.MOV`, `.HEIC` — is still skipped, but the build now prints a WARNING
-naming each skipped file, so nothing disappears quietly again. There are currently 8
-`.MOV` files under `2026-06-25-pierce-mizpah/` that the site does not show.
+naming each skipped file, so nothing disappears quietly again.
+
+Expect that warning to list `.MOV` files: iPhone Live Photos save a `.MOV` beside the
+still with the same basename (8 of them under `2026-06-25-pierce-mizpah/`). Skipping
+those is correct — the still is published and the motion clip, 1.5-2 MB for ~3 seconds,
+is not wanted. A `.MOV` with no matching still would be a real video and worth a look.
 
 **There is no map — don't add one back casually.** The page used to show a Leaflet map
 with OpenStreetMap tiles. OSM's tile servers are volunteer-run and their usage policy
