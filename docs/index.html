@@ -6,8 +6,6 @@
 <meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
 <meta name="referrer" content="no-referrer">
 <title>My Wild Life</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
     --pine: #2f6b47; --pine-dark: #17342a; --cream: #f7f7f4;
@@ -30,7 +28,6 @@
   .controls input[type=search]:focus { outline: 2px solid var(--pine); outline-offset: -1px; }
   .controls select { padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 13px; font-family: var(--font); color: var(--ink); background: var(--cream); }
   .controls .count { color: var(--ink-soft); font-size: 12px; margin-left: auto; }
-  #map { height: 320px; }
   main { max-width: 880px; margin: 0 auto; padding: 28px 20px 60px; }
   .entry { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 1px 3px rgba(23,52,42,.06); margin-bottom: 24px; overflow: hidden; }
   .entry-head { padding: 20px 24px 4px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
@@ -75,7 +72,6 @@
   <span class="count" id="count"></span>
 </div>
 
-<div id="map"></div>
 <main id="entries"></main>
 <div id="lightbox" onclick="this.style.display='none'"><img id="lightbox-img" alt=""></div>
 
@@ -387,22 +383,10 @@ function matches(e) {
   return q.split(/\s+/).every(w => hay.includes(w));
 }
 
-// Map — optional. If Leaflet (CDN) or the tile server is unreachable, the log still renders.
-let map = null, markers = [];
-try {
-  if (typeof L !== 'undefined') {
-    map = L.map('map').setView([44.3, -72.2], 7);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution:'&copy; OpenStreetMap'}).addTo(map);
-  }
-} catch (err) { map = null; }
-if (!map) document.getElementById('map').style.display = 'none';
-
 function render() {
   const list = LOG.filter(matches).sort((a,b)=>b.date_start.localeCompare(a.date_start));
   renderStats(list);
   document.getElementById('count').textContent = `${list.length} of ${LOG.length} shown`;
-  if (map) { markers.forEach(m=>map.removeLayer(m)); }
-  markers = [];
 
   const el = document.getElementById('entries');
   if (!list.length) { el.innerHTML = '<div class="empty">Nothing matches — try fewer words.</div>'; return; }
@@ -431,15 +415,6 @@ function render() {
       </div>
       ${(e.links||[]).length ? `<div class="notes" style="padding-top:0">${e.links.map(l=>`<a href="${l.url}" target="_blank">${l.label}</a>`).join(' &middot; ')}</div>` : ''}
     </article>`).join('');
-
-  if (map) {
-    list.filter(e=>e.lat).forEach(e=>{
-      const m = L.marker([e.lat,e.lng]).addTo(map)
-        .bindPopup(`<b>${e.title}</b><br>${fmtDate(e)}<br><a href="#e-${e.id}">Jump to entry</a>`);
-      markers.push(m);
-    });
-    if (markers.length) map.fitBounds(L.featureGroup(markers).getBounds().pad(0.5), {maxZoom: 9});
-  }
 }
 
 const lightbox = document.getElementById('lightbox');
