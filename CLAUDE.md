@@ -68,10 +68,12 @@ returning *403 Access Blocked* intermittently. Removed 2026-09-23 from `dashboar
 (Leaflet CDN tags, `#map`, and the marker code in `render()`). A map needs a tile source
 that permits it — an API key or a paid basemap — not OSM's public servers.
 
-**Entries still carry `lat`/`lng` in the LOG JSON** and it is published in `index.html`,
-at roughly 11 m precision, for 12 of 12 entries. Nothing reads it now that the map is
-gone. Given that photo EXIF is stripped precisely to keep locations off the web, this is
-worth a decision: either strip the fields in `build_site.py`, or accept them knowingly.
+**Entry coordinates never reach the web.** `build_site.py` drops `lat`/`lng` from the LOG
+block when it writes `index.html` (see `strip_coords`). Nothing on the page reads them now
+that the map is gone, and publishing ~11 m coordinates for entries shot at the house would
+undo the point of stripping photo EXIF. The source `dashboard.html` and the `activities/*.md`
+front matter keep them as the private record — only the build loses them, so this self-heals
+if new entries arrive carrying coordinates.
 
 ## DNS
 
