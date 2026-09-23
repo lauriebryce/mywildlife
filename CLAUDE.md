@@ -61,6 +61,15 @@ under `photos/<entry-id>/thumb/` used for the gallery grid, with the 1600px vers
 the lightbox. Laurie will never print from this. Current build is 85 photos, 42 MB,
 down from 243 MB of originals.
 
+`build_site.py` accepts `.jpg`, `.jpeg` and `.png` (see `PHOTO_EXTS`) and re-encodes
+everything to `.jpg`. PNG is supported because the route cards shared out of AllTrails
+and Paddle Logger are phone screenshots, and phone screenshots are PNG — before this they
+were skipped silently, which is why route images were missing from some entries.
+Transparency is flattened onto white (a bare `convert("RGB")` would make it black).
+Anything else — `.MOV`, `.HEIC` — is still skipped, but the build now prints a WARNING
+naming each skipped file, so nothing disappears quietly again. There are currently 8
+`.MOV` files under `2026-06-25-pierce-mizpah/` that the site does not show.
+
 **There is no map — don't add one back casually.** The page used to show a Leaflet map
 with OpenStreetMap tiles. OSM's tile servers are volunteer-run and their usage policy
 disallows this kind of use, especially from a page sending `no-referrer`; it started
