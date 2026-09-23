@@ -61,9 +61,17 @@ under `photos/<entry-id>/thumb/` used for the gallery grid, with the 1600px vers
 the lightbox. Laurie will never print from this. Current build is 85 photos, 42 MB,
 down from 243 MB of originals.
 
-**The map is optional by design.** Leaflet loads from the unpkg CDN; a failure there
-used to blank the whole page. Map setup is wrapped in try/catch and `#map` hides itself
-when Leaflet is missing, so entries always render. Keep that guard.
+**There is no map — don't add one back casually.** The page used to show a Leaflet map
+with OpenStreetMap tiles. OSM's tile servers are volunteer-run and their usage policy
+disallows this kind of use, especially from a page sending `no-referrer`; it started
+returning *403 Access Blocked* intermittently. Removed 2026-09-23 from `dashboard.html`
+(Leaflet CDN tags, `#map`, and the marker code in `render()`). A map needs a tile source
+that permits it — an API key or a paid basemap — not OSM's public servers.
+
+**Entries still carry `lat`/`lng` in the LOG JSON** and it is published in `index.html`,
+at roughly 11 m precision, for 12 of 12 entries. Nothing reads it now that the map is
+gone. Given that photo EXIF is stripped precisely to keep locations off the web, this is
+worth a decision: either strip the fields in `build_site.py`, or accept them knowingly.
 
 ## DNS
 
