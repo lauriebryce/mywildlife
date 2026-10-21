@@ -34,7 +34,22 @@ if ($index -notmatch 'name="referrer"\s+content="no-referrer"') { throw "ABORT: 
 git -C $repo add -A
 if (git -C $repo status --porcelain) {
     git -C $repo commit -m "Rebuild site"
-    git -C $repo push
+    if ($LASTEXITCODE -ne 0) { throw "git commit failed with exit code $LASTEXITCODE" }
+
+    # No credential helper is configured for git here, so a plain `git push` dies with
+    # "could not read Username for 'https://github.com'" in any shell that cannot prompt.
+    # gh is logged in, so hand git gh's token for this one command; -c keeps it out of
+    # the stored config.
+    if (Get-Command gh -ErrorAction SilentlyContinue) {
+        git -C $repo -c credential.helper='!gh auth git-credential' push
+    } else {
+        git -C $repo push
+    }
+    # $ErrorActionPreference does not catch a native command's exit code. Without this
+    # check the script printed the green "Published." line after a failed push, so a
+    # publish that never left the machine looked like it had succeeded.
+    if ($LASTEXITCODE -ne 0) { throw "git push failed with exit code $LASTEXITCODE - the rebuild is committed locally but NOT published" }
+
     Write-Host "Published. GitHub Pages usually redeploys within a minute." -ForegroundColor Green
 } else {
     Write-Host "Nothing changed - no commit made." -ForegroundColor Yellow
